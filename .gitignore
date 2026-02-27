@@ -6,3 +6,10 @@ data/summary.txt
 data/prioritized.txt
 __pycache__/
 *.pyc
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+
+# Input data
+data/input/
