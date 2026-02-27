@@ -30,11 +30,25 @@ class RunRequest(BaseModel):
     content: str
 
 
+DOCKER_SOCKETS = [
+    "unix:///var/run/docker.sock",
+    f"unix://{Path.home()}/.docker/run/docker.sock",
+    f"unix://{Path.home()}/Library/Containers/com.docker.docker/Data/docker.sock",
+]
+
+
 def get_docker_client():
-    try:
-        return docker.from_env()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Docker unavailable: {e}")
+    for socket in DOCKER_SOCKETS:
+        try:
+            client = docker.DockerClient(base_url=socket)
+            client.ping()
+            return client
+        except Exception:
+            continue
+    raise HTTPException(
+        status_code=500,
+        detail="Docker is not running. Please start Docker Desktop and try again."
+    )
 
 
 @app.post("/run")
